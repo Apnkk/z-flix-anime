@@ -1,0 +1,11 @@
+{
+  "version": "6.0.105",
+  "notes": "## Corrige\n- Sources anime: tickets admin-proxy morts rejetes avant lecture\n- embed-gate -> vraie URL embed (streamtape/voe) pour extract desktop\n- Race VOSTFR plus longue (14s) sur gros catalogues\n\n## ZLauncher\n- Avatar Discord: refresh API + gif a_ + fallback casse",
+  "pub_date": "2026-08-30T21:31:10.000Z",
+  "platforms": {
+    "windows-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRRzY0aW81a0FFWndPdHByMTRpL1NPQ21iRnlnVkl5cU5vVDBUOGxOVWdwaGtSN1NraUg3eVUwc1VjKzhtWUx3MXFKZmFrQ1QvRnBCWFJkOTdpSWdlTWFVV2cvLzVWOEFJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg4MTI0OTY2CWZpbGU6Wi1BbmltZXNfNi4wLjEwNV94NjQtc2V0dXAuZXhlCjF2THRia3JyOW8rL0QrVUdpWFo0U3JoUDREOExyRGNvSUZJbnhVTXNLTmFvbUhVNFlzcHgydmRpdThDOUlOZGNrWXhUZGJuTDJ5KzZzd0x5SW5ja0NBPT0K",
+      "url": "https://github.com/Apnkk/z-flix-anime/releases/download/v6.0.105/Z-Animes_6.0.105_x64-setup.exe"
+    }
+  }
+}

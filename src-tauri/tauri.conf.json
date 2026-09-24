@@ -1,0 +1,62 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Z-Animes",
+  "version": "6.0.116",
+  "identifier": "com.zflix.animes",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1440",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Z-Animes",
+        "width": 1688,
+        "height": 886,
+        "minWidth": 640,
+        "minHeight": 360,
+        "resizable": true,
+        "center": true,
+        "decorations": false,
+        "shadow": true,
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,AudioServiceOutOfProcess"
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis"
+    ],
+    "createUpdaterArtifacts": true,
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "nsis": {
+        "languages": [
+          "French"
+        ],
+        "installMode": "currentUser",
+        "displayLanguageSelector": false,
+        "installerIcon": "icons/icon.ico"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZCRkJGQjQzNUVFMjA1MzUKUldRMUJlSmVRL3Y3K3p6ZGdPL05SaHgxSjg3US94U2QvbGRBVUcyMEkxbm1hY0VtdTAvRWcxZ3cK",
+      "endpoints": [
+        "https://github.com/Apnkk/z-flix-anime/releases/latest/download/latest.json"
+      ]
+    }
+  }
+}
