@@ -2831,6 +2831,58 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border: 1px solid rgba(255,255,255,0.14);
 }
 
+.cr-fail-vostfr-prompt {
+  background: rgba(14, 11, 16, 0.92);
+  border: 1px solid rgba(225, 29, 72, 0.3);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
+}
+
+.cr-fail-vo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: rgba(225, 29, 72, 0.18);
+  border: 1px solid rgba(251, 113, 133, 0.4);
+  color: #fb7185;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.03em;
+  margin-bottom: 4px;
+}
+
+.cr-fail-vo-badge svg {
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.cr-fail-primary.cr-fail-switch-vo {
+  background: linear-gradient(135deg, #e11d48, #be123c);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  font-size: 14px;
+  box-shadow: 0 4px 20px rgba(225, 29, 72, 0.45);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.cr-fail-primary.cr-fail-switch-vo:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+
+.cr-lang button.cr-lang-btn-disabled,
+.lang-switch button.cr-lang-btn-disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
 .cr-led {
   position: relative;
   width: 38px;

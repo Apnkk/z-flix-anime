@@ -415,9 +415,18 @@ export default function App() {
   }
 
   function play(d: TitleDetails, season = 1, episode = 1) {
-    setLang((prev) => clampAnimeLang(prev, d));
     const s = d.mediaType === 'tv' ? season : 0;
     const e = d.mediaType === 'tv' ? episode : 0;
+    if (d.id === details?.id && e) {
+      const avail = epLangOf(e, true);
+      if (avail && avail.vostfr && !avail.vf) {
+        setLang('vostfr');
+      } else {
+        setLang((prev) => clampAnimeLang(prev, d));
+      }
+    } else {
+      setLang((prev) => clampAnimeLang(prev, d));
+    }
     setHistory(pushHistory({
       tmdbId: d.id,
       mediaType: d.mediaType,

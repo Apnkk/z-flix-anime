@@ -38,7 +38,7 @@ import {
   type TitleDetails,
 } from '@zflix/desktop-core';
 import { loadAnimePrefs, saveAnimePrefs, type AnimeQuality } from '../animePrefs';
-import { EpisodeLangFlags, TitleLangSwitch, useEpisodeLangResolver } from './LangFlags';
+import { EpisodeLangFlags, FlagJP, TitleLangSwitch, useEpisodeLangResolver } from './LangFlags';
 import { useDragScroll } from '../dragScroll';
 
 interface Props {
@@ -67,6 +67,7 @@ interface ProbeInfo {
   readers?: StreamReader[];
   activeReaderIndex?: number;
   hoster?: string;
+  audioLang?: AnimeLang;
   /** Hosters already tried on Anime-Sama (skipHost re-resolve). */
   skipHosts?: string[];
   error?: string;
@@ -91,16 +92,22 @@ function qualityBtnLabel(q: AnimeQuality): string {
   return q === 'auto' ? 'Auto' : `${q}p`;
 }
 
-function canPlayEarly(source: StreamSource, lang: AnimeLang): boolean {
+function canPlayEarly(source: StreamSource, lang: AnimeLang, probe?: ProbeInfo): boolean {
+  const audio = probe?.audioLang || source.audioLang;
   if (lang === 'vostfr') {
-    if (source.audioLang) return source.audioLang === 'vostfr';
+    if (audio) return audio === 'vostfr';
     return isAnimeVoCapable(source.playerId);
+  }
+  if (lang === 'vf') {
+    if (audio && audio !== 'vf') return false;
+    return true;
   }
   return true;
 }
 
-function sourceLangBadge(source: StreamSource, lang: AnimeLang): 'vf' | 'vostfr' {
-  if (source.audioLang) return source.audioLang;
+function sourceLangBadge(source: StreamSource, lang: AnimeLang, probe?: ProbeInfo): 'vf' | 'vostfr' {
+  const audio = probe?.audioLang || source.audioLang;
+  if (audio) return audio;
   return lang === 'vostfr' && isAnimeVoCapable(source.playerId) ? 'vostfr' : 'vf';
 }
 
@@ -278,9 +285,21 @@ export function AnimePlayer({
   const [probes, setProbes] = useState<Record<string, ProbeInfo>>({});
   const [episodes, setEpisodes] = useState<EpisodeInfo[]>([]);
   const [epsLoading, setEpsLoading] = useState(false);
+  const isTv = details.mediaType === 'tv';
   /** Season shown in the strip — browse only, does not start playback. */
   const [browseSeason, setBrowseSeason] = useState(season);
   const epLangOf = useEpisodeLangResolver(details, browseSeason);
+  const currentEpLangOf = useEpisodeLangResolver(details, season);
+  const currentEpAvail = isTv ? currentEpLangOf(episode, true) : null;
+  const isKnownVoOnly = !!(currentEpAvail?.vostfr && !currentEpAvail?.vf);
+  const hasVostfrAvail = currentEpAvail ? currentEpAvail.vostfr : (details.langs?.includes('vostfr') ?? true);
+
+  useEffect(() => {
+    if (lang === 'vf' && isKnownVoOnly) {
+      setStatus('Épisode disponible uniquement en VOSTFR — bascule automatique');
+      onLang('vostfr');
+    }
+  }, [lang, isKnownVoOnly, onLang]);
   const [hoverPct, setHoverPct] = useState<number | null>(null);
   const [seekDragging, setSeekDragging] = useState(false);
   const [scanHint, setScanHint] = useState('Recherche du meilleur flux…');
@@ -298,7 +317,6 @@ export function AnimePlayer({
     ? Math.min(...episodes.map((e) => e.episodeNumber))
     : 1;
   const progress = duration > 0 ? (current / duration) * 100 : 0;
-  const isTv = details.mediaType === 'tv';
   const currentEp = episodes.find((e) => e.episodeNumber === episode);
   const qualityUnlocked = raceDone && !!active && !loading && !error;
 
@@ -875,8 +893,8 @@ export function AnimePlayer({
     };
 
     const isPlayableProbe = (s: StreamSource) => {
-      if (!canPlayEarly(s, lang)) return false;
       const pr = probeCache.current[s.playerId];
+      if (!canPlayEarly(s, lang, pr)) return false;
       return !!(pr?.state === 'ok' && pr.url && isAttachableStreamUrl(pr.url));
     };
 
@@ -897,6 +915,7 @@ export function AnimePlayer({
       alternates?: string[];
       readers?: StreamReader[];
       hoster?: string;
+      audioLang?: AnimeLang;
       ms?: number;
       quality?: number;
       error?: string;
@@ -912,6 +931,7 @@ export function AnimePlayer({
           readers: p.readers,
           activeReaderIndex: 0,
           hoster: p.hoster,
+          audioLang: p.audioLang || p.source.audioLang,
           ms: p.ms,
           quality: p.quality,
         };
@@ -931,7 +951,7 @@ export function AnimePlayer({
 
     const cacheHit = (
       source: StreamSource,
-      stream: { url?: string; alternates?: string[]; readers?: StreamReader[]; hoster?: string },
+      stream: { url?: string; alternates?: string[]; readers?: StreamReader[]; hoster?: string; audioLang?: AnimeLang },
       quality?: number,
       ms?: number,
     ) => {
@@ -951,6 +971,7 @@ export function AnimePlayer({
         readers: stream.readers,
         activeReaderIndex: 0,
         hoster: stream.hoster,
+        audioLang: stream.audioLang || source.audioLang,
         ms,
         quality,
       };
@@ -1697,6 +1718,9 @@ export function AnimePlayer({
 
   const okCount = Object.values(probes).filter((p) => p.state === 'ok').length;
   const failCount = Object.values(probes).filter((p) => p.state === 'fail').length;
+  const hasReadyVoStream = Object.values(probes).some(
+    (p) => p.state === 'ok' && (p.audioLang === 'vostfr' || (p.hoster && isAnimeVoCapable(p.hoster as any))),
+  );
 
   return (
     <div
@@ -1799,23 +1823,69 @@ export function AnimePlayer({
         )}
 
         {error && !playing && (
-          <div className="cr-fail">
-            <strong>Lecture impossible</strong>
-            <p>{sanitizePlayerError(error)}</p>
-            <p className="cr-fail-meta">{failCount ? `${failCount} serveur(s) indisponible(s)` : 'Aucun serveur disponible'}</p>
-            <div className="cr-fail-actions">
-              <button type="button" className="cr-fail-primary" onClick={() => {
-                resolveAbortRef.current?.abort();
-                const ctrl = new AbortController();
-                resolveAbortRef.current = ctrl;
-                runResolve(ctrl.signal);
-              }}>
-                Réessayer
-              </button>
-              <button type="button" className="cr-fail-ghost" onClick={() => void openServers()}>
-                Choisir un serveur
-              </button>
-            </div>
+          <div className={`cr-fail${lang === 'vf' && hasVostfrAvail ? ' cr-fail-vostfr-prompt' : ''}`}>
+            {lang === 'vf' && hasVostfrAvail ? (
+              <>
+                <div className="cr-fail-vo-badge">
+                  <FlagJP /> {isKnownVoOnly || hasReadyVoStream ? 'Disponible uniquement en VOSTFR' : 'VOSTFR disponible'}
+                </div>
+                <strong>{isKnownVoOnly ? 'Disponible uniquement en VOSTFR' : 'Cet épisode est disponible en VOSTFR'}</strong>
+                <p>
+                  {isKnownVoOnly
+                    ? "Le doublage français (VF) n'existe pas pour cet épisode. Il est disponible en version originale japonaise sous-titrée en français (VOSTFR)."
+                    : "Le doublage français (VF) est indisponible pour cet épisode, mais il est disponible en version originale sous-titrée (VOSTFR)."}
+                </p>
+                <p className="cr-fail-meta">
+                  {failCount ? `${failCount} serveur(s) VF indisponible(s)` : 'Serveurs VF indisponibles'}
+                </p>
+                <div className="cr-fail-actions">
+                  <button
+                    type="button"
+                    className="cr-fail-primary cr-fail-switch-vo"
+                    onClick={() => {
+                      clearStickyAnimePlayer();
+                      onLang('vostfr');
+                    }}
+                  >
+                    <FlagJP /> Regarder en VOSTFR
+                  </button>
+                  <button
+                    type="button"
+                    className="cr-fail-ghost"
+                    onClick={() => {
+                      resolveAbortRef.current?.abort();
+                      const ctrl = new AbortController();
+                      resolveAbortRef.current = ctrl;
+                      runResolve(ctrl.signal);
+                    }}
+                  >
+                    Réessayer en VF
+                  </button>
+                  <button type="button" className="cr-fail-ghost" onClick={() => void openServers()}>
+                    Choisir un serveur
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <strong>Lecture impossible</strong>
+                <p>{sanitizePlayerError(error)}</p>
+                <p className="cr-fail-meta">{failCount ? `${failCount} serveur(s) indisponible(s)` : 'Aucun serveur disponible'}</p>
+                <div className="cr-fail-actions">
+                  <button type="button" className="cr-fail-primary" onClick={() => {
+                    resolveAbortRef.current?.abort();
+                    const ctrl = new AbortController();
+                    resolveAbortRef.current = ctrl;
+                    runResolve(ctrl.signal);
+                  }}>
+                    Réessayer
+                  </button>
+                  <button type="button" className="cr-fail-ghost" onClick={() => void openServers()}>
+                    Choisir un serveur
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -1836,6 +1906,7 @@ export function AnimePlayer({
                 item={details}
                 lang={lang}
                 className="cr-lang"
+                episodeAvail={currentEpAvail}
                 onLang={(l) => {
                   if (l === lang) return;
                   clearStickyAnimePlayer();

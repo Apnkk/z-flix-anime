@@ -71,36 +71,63 @@ export function TitleLangSwitch({
   lang,
   onLang,
   className = 'lang-switch',
+  episodeAvail,
 }: {
   item: Pick<TitleCard, 'title' | 'langs'>;
   lang: AnimeLang;
   onLang: (l: AnimeLang) => void;
   className?: string;
+  episodeAvail?: TitleLangAvail | null;
 }) {
   const tick = useTitleLangIndexTick();
   const buttons = titleLangButtons(item);
   const onLangRef = useRef(onLang);
   onLangRef.current = onLang;
 
+  const vfUnavailable = episodeAvail ? (!episodeAvail.vf && episodeAvail.vostfr) : false;
+  const voUnavailable = episodeAvail ? (!episodeAvail.vostfr && episodeAvail.vf) : false;
+
   useEffect(() => {
+    if (episodeAvail) {
+      if (lang === 'vf' && vfUnavailable) {
+        onLangRef.current('vostfr');
+        return;
+      }
+      if (lang === 'vostfr' && voUnavailable) {
+        onLangRef.current('vf');
+        return;
+      }
+    }
     const next = clampAnimeLang(lang, item);
     if (next !== lang) onLangRef.current(next);
-  }, [lang, item, tick, buttons.vf, buttons.vostfr]);
+  }, [lang, item, tick, buttons.vf, buttons.vostfr, vfUnavailable, voUnavailable]);
 
   return (
     <div className={className}>
       {buttons.vf ? (
-        <button type="button" className={lang === 'vf' ? 'on' : ''} onClick={() => onLang('vf')}>
-          <FlagFR /> VF
+        <button
+          type="button"
+          className={`${lang === 'vf' ? 'on' : ''}${vfUnavailable ? ' cr-lang-btn-disabled' : ''}`}
+          disabled={vfUnavailable}
+          title={vfUnavailable ? 'Cet épisode est disponible uniquement en VOSTFR' : 'Version française'}
+          onClick={() => {
+            if (!vfUnavailable) onLang('vf');
+          }}
+        >
+          <FlagFR /> VF{vfUnavailable ? ' (indispo)' : ''}
         </button>
       ) : null}
       {buttons.vostfr ? (
         <button
           type="button"
-          className={lang === 'vostfr' ? 'on' : ''}
-          onClick={() => onLang('vostfr')}
+          className={`${lang === 'vostfr' ? 'on' : ''}${voUnavailable ? ' cr-lang-btn-disabled' : ''}`}
+          disabled={voUnavailable}
+          title={voUnavailable ? 'Cet épisode est disponible uniquement en VF' : 'Version originale sous-titrée'}
+          onClick={() => {
+            if (!voUnavailable) onLang('vostfr');
+          }}
         >
-          <FlagJP /> VOSTFR
+          <FlagJP /> VOSTFR{voUnavailable ? ' (indispo)' : ''}
         </button>
       ) : null}
     </div>
