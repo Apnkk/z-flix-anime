@@ -2274,6 +2274,22 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
 }
 
+.ep-card-langs-vo-only,
+.cr-ep-langs-vo-only {
+  box-shadow:
+    0 0 0 1px rgba(225, 29, 72, 0.55),
+    0 6px 14px rgba(0, 0, 0, 0.55);
+}
+
+.ep-card-lang-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #ff9bb2;
+  padding: 0 2px;
+  line-height: 1;
+}
+
 .ep-card.upcoming .ep-card-langs,
 .cr-ep.upcoming .cr-ep-langs {
   display: none;

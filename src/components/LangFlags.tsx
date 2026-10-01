@@ -143,11 +143,22 @@ export function EpisodeLangFlags({
   className?: string;
 }) {
   if (!avail || (!avail.vf && !avail.vostfr)) return null;
-  const label = formatTitleLangs(avail);
+  const isVoOnly = !avail.vf && avail.vostfr;
+  const isVfOnly = avail.vf && !avail.vostfr;
+  const label = isVoOnly
+    ? 'Disponible uniquement en VOSTFR'
+    : isVfOnly
+      ? 'Disponible uniquement en VF'
+      : formatTitleLangs(avail);
   return (
-    <span className={className} title={label} aria-label={label}>
+    <span
+      className={`${className}${isVoOnly ? ' ep-card-langs-vo-only' : ''}${isVfOnly ? ' ep-card-langs-vf-only' : ''}`}
+      title={label}
+      aria-label={label}
+    >
       {avail.vf ? <FlagFR /> : null}
       {avail.vostfr ? <FlagJP /> : null}
+      {isVoOnly ? <span className="ep-card-lang-tag">VOSTFR</span> : null}
     </span>
   );
 }
