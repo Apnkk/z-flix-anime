@@ -381,7 +381,8 @@ export default function App() {
       setLang((prev) => clampAnimeLang(prev, d));
       if (d.mediaType === 'tv' && d.seasons[0]) {
         setSeasonPick(d.seasons[0].seasonNumber);
-        setEpisodes(await fetchSeason(d.id, d.seasons[0].seasonNumber, d.posterPath || d.backdropPath));
+        const eps = await fetchSeason(d.id, d.seasons[0].seasonNumber, d.posterPath || d.backdropPath);
+        setEpisodes(eps.slice().sort((a, b) => a.episodeNumber - b.episodeNumber));
       } else {
         setEpisodes([]);
       }
@@ -405,7 +406,8 @@ export default function App() {
           ?? d.seasons[0]?.seasonNumber
           ?? 1;
         setSeasonPick(season);
-        setEpisodes(await fetchSeason(d.id, season, d.posterPath || d.backdropPath));
+        const eps = await fetchSeason(d.id, season, d.posterPath || d.backdropPath);
+        setEpisodes(eps.slice().sort((a, b) => a.episodeNumber - b.episodeNumber));
       } else {
         setEpisodes([]);
       }
@@ -879,14 +881,19 @@ export default function App() {
                     type="button"
                     key={s.seasonNumber}
                     className={seasonPick === s.seasonNumber ? 'on' : ''}
-                    onClick={() => { setSeasonPick(s.seasonNumber); void fetchSeason(details.id, s.seasonNumber, details.posterPath || details.backdropPath).then(setEpisodes); }}
+                    onClick={() => {
+                      setSeasonPick(s.seasonNumber);
+                      void fetchSeason(details.id, s.seasonNumber, details.posterPath || details.backdropPath).then((eps) => {
+                        setEpisodes(eps.slice().sort((a, b) => a.episodeNumber - b.episodeNumber));
+                      });
+                    }}
                   >
                     {s.name}
                   </button>
                 ))}
               </div>
               <div className="ep-grid">
-                {episodes.map((ep) => {
+                {episodes.slice().sort((a, b) => a.episodeNumber - b.episodeNumber).map((ep) => {
                   const aired = isEpisodeAired(ep, episodes);
                   const when = !aired && prefs.showAirDates !== false ? formatEpisodeAirDate(ep.airDate) : '';
                   return (
@@ -894,10 +901,8 @@ export default function App() {
                       type="button"
                       key={ep.episodeNumber}
                       className={`ep-card${aired ? '' : ' upcoming'}`}
-                      disabled={!aired}
-                      title={aired ? ep.name : (when ? `Diffuse le ${when}` : 'Épisode à venir')}
+                      title={aired ? ep.name : (when ? `Diffusé le ${when} (Essayer la lecture)` : 'Épisode à venir (Essayer la lecture)')}
                       onClick={() => {
-                        if (!aired) return;
                         play(details, seasonPick, ep.episodeNumber);
                       }}
                     >
@@ -910,7 +915,7 @@ export default function App() {
                         <EpisodeLangFlags avail={epLangOf(ep.episodeNumber, aired)} />
                       </div>
                       <span className="ep-card-num">E{ep.episodeNumber}</span>
-                      <b>{aired ? ep.name : 'À venir'}</b>
+                      <b>{ep.name || (aired ? `Épisode ${ep.episodeNumber}` : 'À venir')}</b>
                       {!aired && when ? <em className="ep-card-date">{when}</em> : null}
                     </button>
                   );

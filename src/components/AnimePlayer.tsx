@@ -284,6 +284,7 @@ export function AnimePlayer({
   const [probing, setProbing] = useState(false);
   const [probes, setProbes] = useState<Record<string, ProbeInfo>>({});
   const [episodes, setEpisodes] = useState<EpisodeInfo[]>([]);
+  const [currentSeasonEpisodes, setCurrentSeasonEpisodes] = useState<EpisodeInfo[]>([]);
   const [epsLoading, setEpsLoading] = useState(false);
   const isTv = details.mediaType === 'tv';
   /** Season shown in the strip — browse only, does not start playback. */
@@ -313,11 +314,13 @@ export function AnimePlayer({
   const playedIdRef = useRef<string | null>(null);
   const playStartedAtRef = useRef(0);
 
-  const minEp = episodes.length
-    ? Math.min(...episodes.map((e) => e.episodeNumber))
+  const activeEpisodes = currentSeasonEpisodes.length ? currentSeasonEpisodes : episodes;
+  const minEp = activeEpisodes.length
+    ? Math.min(...activeEpisodes.map((e) => e.episodeNumber))
     : 1;
   const progress = duration > 0 ? (current / duration) * 100 : 0;
-  const currentEp = episodes.find((e) => e.episodeNumber === episode);
+  const currentEp = currentSeasonEpisodes.find((e) => e.episodeNumber === episode)
+    || episodes.find((e) => e.episodeNumber === episode);
   const qualityUnlocked = raceDone && !!active && !loading && !error;
 
   useEffect(() => {
@@ -1407,12 +1410,23 @@ export function AnimePlayer({
 
   useEffect(() => {
     if (!isTv) return;
+    void fetchSeason(details.id, season, details.posterPath || details.backdropPath)
+      .then((eps) => setCurrentSeasonEpisodes(eps.slice().sort((a, b) => a.episodeNumber - b.episodeNumber)))
+      .catch(() => setCurrentSeasonEpisodes([]));
+  }, [details.id, season, isTv]);
+
+  useEffect(() => {
+    if (!isTv) return;
+    if (browseSeason === season && currentSeasonEpisodes.length > 0) {
+      setEpisodes(currentSeasonEpisodes);
+      return;
+    }
     setEpsLoading(true);
     void fetchSeason(details.id, browseSeason, details.posterPath || details.backdropPath)
-      .then(setEpisodes)
+      .then((eps) => setEpisodes(eps.slice().sort((a, b) => a.episodeNumber - b.episodeNumber)))
       .catch(() => setEpisodes([]))
       .finally(() => setEpsLoading(false));
-  }, [details.id, browseSeason, isTv]);
+  }, [details.id, browseSeason, season, isTv, currentSeasonEpisodes]);
 
   useEffect(() => {
     const btn = epStripRef.current?.querySelector<HTMLElement>('.cr-ep.on');
@@ -1423,14 +1437,25 @@ export function AnimePlayer({
     const video = videoRef.current;
     if (!video || !autoplayNext || !isTv) return;
     const onEnded = () => {
-      const next = episodes
-        .filter((e) => e.episodeNumber > episode && isEpisodeAired(e, episodes))
+      const activeList = currentSeasonEpisodes.length ? currentSeasonEpisodes : episodes;
+      const next = activeList
+        .filter((e) => e.episodeNumber > episode)
         .sort((a, b) => a.episodeNumber - b.episodeNumber)[0];
-      if (next) onEpisode(season, next.episodeNumber);
+      if (next) {
+        onEpisode(season, next.episodeNumber);
+        return;
+      }
+      const regularSeasons = details.seasons
+        ?.filter((s) => s.seasonNumber > season && s.seasonNumber > 0)
+        .sort((a, b) => a.seasonNumber - b.seasonNumber);
+      const nextSeason = regularSeasons?.[0];
+      if (nextSeason) {
+        onEpisode(nextSeason.seasonNumber, 1);
+      }
     };
     video.addEventListener('ended', onEnded);
     return () => video.removeEventListener('ended', onEnded);
-  }, [autoplayNext, isTv, season, episode, episodes, onEpisode]);
+  }, [autoplayNext, isTv, season, episode, episodes, currentSeasonEpisodes, details.seasons, onEpisode]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -1954,16 +1979,58 @@ export function AnimePlayer({
                 </button>
                 {isTv && (
                   <>
-                    <button type="button" className="cr-text-btn" disabled={episode <= minEp} onClick={() => onEpisode(season, episode - 1)}>◀ Préc.</button>
+                    <button
+                      type="button"
+                      className="cr-text-btn"
+                      disabled={(() => {
+                        if (episode > minEp) return false;
+                        const prevSeasons = details.seasons
+                          ?.filter((s) => s.seasonNumber < season && s.seasonNumber > 0)
+                          .sort((a, b) => b.seasonNumber - a.seasonNumber);
+                        return !prevSeasons?.length;
+                      })()}
+                      onClick={() => {
+                        if (episode > minEp) {
+                          onEpisode(season, episode - 1);
+                        } else {
+                          const prevSeasons = details.seasons
+                            ?.filter((s) => s.seasonNumber < season && s.seasonNumber > 0)
+                            .sort((a, b) => b.seasonNumber - a.seasonNumber);
+                          if (prevSeasons?.[0]) {
+                            const prevS = prevSeasons[0];
+                            onEpisode(prevS.seasonNumber, prevS.episodeCount || 1);
+                          }
+                        }
+                      }}
+                    >
+                      ◀ Préc.
+                    </button>
                     <button
                       type="button"
                       className="cr-text-btn primary"
-                      disabled={!episodes.some((e) => e.episodeNumber > episode && isEpisodeAired(e, episodes))}
+                      disabled={(() => {
+                        const activeList = currentSeasonEpisodes.length ? currentSeasonEpisodes : episodes;
+                        const hasNextInSeason = activeList.some((e) => e.episodeNumber > episode);
+                        if (hasNextInSeason) return false;
+                        const nextSeasons = details.seasons
+                          ?.filter((s) => s.seasonNumber > season && s.seasonNumber > 0);
+                        return !nextSeasons?.length;
+                      })()}
                       onClick={() => {
-                        const next = episodes
-                          .filter((e) => e.episodeNumber > episode && isEpisodeAired(e, episodes))
+                        const activeList = currentSeasonEpisodes.length ? currentSeasonEpisodes : episodes;
+                        const next = activeList
+                          .filter((e) => e.episodeNumber > episode)
                           .sort((a, b) => a.episodeNumber - b.episodeNumber)[0];
-                        if (next) onEpisode(season, next.episodeNumber);
+                        if (next) {
+                          onEpisode(season, next.episodeNumber);
+                          return;
+                        }
+                        const nextSeasons = details.seasons
+                          ?.filter((s) => s.seasonNumber > season && s.seasonNumber > 0)
+                          .sort((a, b) => a.seasonNumber - b.seasonNumber);
+                        if (nextSeasons?.[0]) {
+                          onEpisode(nextSeasons[0].seasonNumber, 1);
+                        }
                       }}
                     >
                       Suiv. ▶
@@ -2241,7 +2308,7 @@ export function AnimePlayer({
 
           <div className="cr-eps-rail">
             <div className="cr-eps-strip" ref={epStripRef}>
-              {episodes.map((ep) => {
+              {episodes.slice().sort((a, b) => a.episodeNumber - b.episodeNumber).map((ep) => {
                 const on = browseSeason === season && ep.episodeNumber === episode;
                 const aired = isEpisodeAired(ep, episodes);
                 const when = !aired && showAirDates ? formatEpisodeAirDate(ep.airDate) : '';
@@ -2250,10 +2317,8 @@ export function AnimePlayer({
                     type="button"
                     key={ep.episodeNumber}
                     className={`cr-ep${on ? ' on' : ''}${aired ? '' : ' upcoming'}`}
-                    disabled={!aired}
-                    title={aired ? undefined : (when ? `Diffuse le ${when}` : 'Épisode à venir')}
+                    title={aired ? undefined : (when ? `Diffusé le ${when} (Essayer la lecture)` : 'Épisode à venir (Essayer la lecture)')}
                     onClick={() => {
-                      if (!aired) return;
                       onEpisode(browseSeason, ep.episodeNumber);
                     }}
                   >
@@ -2272,7 +2337,14 @@ export function AnimePlayer({
                           </span>
                         </span>
                       ) : (
-                        <span className="cr-ep-soon">À VENIR</span>
+                        <>
+                          <span className="cr-ep-soon">À VENIR</span>
+                          <span className="cr-ep-play" aria-hidden>
+                            <span className="cr-ep-play-icon">
+                              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11.5-6.86a1 1 0 0 0 0-1.72L9.5 4.28A1 1 0 0 0 8 5.14Z"/></svg>
+                            </span>
+                          </span>
+                        </>
                       )}
                       {on && (
                         <>
@@ -2290,7 +2362,7 @@ export function AnimePlayer({
                     </div>
                     <div className="cr-ep-copy">
                       <b>Épisode {ep.episodeNumber}</b>
-                      <span>{aired ? (ep.name || `Épisode ${ep.episodeNumber}`) : 'À venir'}</span>
+                      <span>{ep.name || (aired ? `Épisode ${ep.episodeNumber}` : 'À venir')}</span>
                       {aired && ep.runtime ? <em>{ep.runtime} min</em> : null}
                       {!aired && when ? <em>{when}</em> : null}
                     </div>

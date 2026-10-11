@@ -2225,7 +2225,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
-.ep-card.upcoming,
+.ep-card.upcoming {
+  opacity: 0.85;
+  cursor: pointer;
+  filter: grayscale(0.2);
+}
+
 .ep-card:disabled {
   opacity: 0.72;
   cursor: not-allowed;
@@ -4036,13 +4041,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 
 .cr-ep.upcoming {
-  opacity: 0.7;
-  cursor: not-allowed;
-  filter: grayscale(0.4);
-}
-
-.cr-ep.upcoming:hover .cr-ep-thumb {
-  transform: none;
+  opacity: 0.85;
+  cursor: pointer;
+  filter: grayscale(0.2);
 }
 
 .cr-ep-soon {
