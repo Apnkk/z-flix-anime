@@ -1,11 +1,11 @@
 {
-  "version": "6.0.122",
-  "notes": "## Nouveautés & Correctifs (v6.0.122)\n- **Scraper Anime-Sama Intelligent** : Correction complète des épisodes désordonnés et des erreurs de lecture sur les séries longues (One Piece, Détective Conan...), multi-cours (Solo Leveling, JJK) et nouvelles saisons (Demon Slayer, Bleach TYBW).\n- **Tri Numérique Strict** : Ordre garanti des épisodes et des saisons dans le catalogue et dans le tiroir du lecteur.\n- **Épisodes Cliquables Sans Blocage** : Les épisodes récemment diffusés ou en simulcast restent immédiatement accessibles à la lecture.\n- **Enchaînement Inter-Saisons Fluide** : Autoplay automatique et navigation Suivant/Précédent opérationnels d'une saison à l'autre.",
-  "pub_date": "2026-10-11T00:14:56.000Z",
+  "version": "6.0.123",
+  "notes": "## Nouveautés & Correctifs (v6.0.123)\n- **Anime-Sama Réinventé & Exhaustif** : Intégration de la recherche directe Anime-Sama (`/fetch.php`), résolution 100% fonctionnelle de séries longues et modernes (Black Clover en VF et VOSTFR, One Piece, Solo Leveling, Wind Breaker, DanDaDan...).\n- **Multi-Lecteurs & Failover Instantané** : Extraction de tous les lecteurs disponibles (Lecteur 1 VidMoly, Lecteur 2 VidHide, etc.) et bascule automatique fluide sans interruption.\n- **Filtrage Intelligent Scans/Manga** : Détection avancée pour garantir l'accès aux flux vidéo d'animation et éliminer les faux positifs.\n- **Stabilité & Vitesse de Décodage** : Priorité absolue aux flux HLS haute vitesse avec décodage unpacked Dean Edwards.",
+  "pub_date": "2026-10-11T01:14:08.000Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRMUJlSmVRL3Y3K3dPcWx4V2xrRHpoZzdGZ3FMNW1kVE9mT3E1alUyTVF5bU0xWXRlbis1VzlJOFB0NWtKSTRjZG9uTXNqRWwyMzFSblJxeVFNalVMeDZNaEdwalVJa0FFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkxNjc3Njk2CWZpbGU6Wi1BbmltZXNfNi4wLjEyMl94NjQtc2V0dXAuZXhlCjYxY1ljQUNWallIRWZTQm9JMk1ENklNWXFBVjlYdUZ5Vk9GbWd2VHVPM1A4YnpjeWU3T0wzRlQ1ZEhSejEwUHNCUWZqalNnNWZRVFdKM1krT0EvSUJ3PT0K",
-      "url": "https://github.com/Apnkk/z-flix-anime/releases/download/v6.0.122/Z-Animes_6.0.122_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRMUJlSmVRL3Y3KzE4azcxZ05YUFdlUklXQlZvZW5QVGM2blZvWUtBSmRNbUtCYlhKcDlpaGtjZ3o3eFhxN2VQUjVZWkpjem0rcG9jRXVybGI0NGtJNXFHR0lpeGQ1QWdzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkxNjgxMjQ4CWZpbGU6Wi1BbmltZXNfNi4wLjEyM194NjQtc2V0dXAuZXhlCjJFZmowNEhZQW1oNWNRUk05ZC9ReEtocmkvQlF6VnZxY3VBNGt1V2YxQkhEUHZLR1FnWGhlNHgyRHU2VXBzODlHMTRydU1BbGVMd2I5Zlp3Nk5LV0RnPT0K",
+      "url": "https://github.com/Apnkk/z-flix-anime/releases/download/v6.0.123/Z-Animes_6.0.123_x64-setup.exe"
     }
   }
 }
