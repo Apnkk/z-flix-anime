@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Z-Animes",
-  "version": "6.0.122",
+  "version": "6.0.123",
   "identifier": "com.zflix.animes",
   "build": {
     "beforeDevCommand": "npm run dev",

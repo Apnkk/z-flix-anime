@@ -430,6 +430,8 @@ export function AnimePlayer({
                   state: 'ok',
                   url: stream.url,
                   alternates: stream.alternates,
+                  readers: stream.readers,
+                  activeReaderIndex: 0,
                   hoster: stream.hoster,
                   skipHosts: skip,
                   quality: stream.quality,
@@ -1033,6 +1035,8 @@ export function AnimePlayer({
           state: 'ok',
           url: h.stream.url,
           alternates: h.stream.alternates,
+          readers: h.stream.readers,
+          activeReaderIndex: 0,
           hoster: h.stream.hoster,
           ms: h.ms,
           quality: h.quality,
@@ -1353,6 +1357,47 @@ export function AnimePlayer({
       const failedId = activeIdRef.current;
       if (failedId) {
         const cur = probeCache.current[failedId];
+        const readers = cur?.readers || [];
+        const curReaderIdx = cur?.activeReaderIndex ?? 0;
+        if (readers.length > curReaderIdx + 1) {
+          const nextReader = readers[curReaderIdx + 1];
+          probeCache.current[failedId] = {
+            ...cur,
+            state: 'ok',
+            url: nextReader.url,
+            activeReaderIndex: curReaderIdx + 1,
+            hoster: nextReader.hoster || cur?.hoster,
+            quality: nextReader.quality || cur?.quality,
+            error: undefined,
+          };
+          setProbes({ ...probeCache.current });
+          setScanHint('Lecteur suivant…');
+          setLoading(true);
+          setError(null);
+          const srcLabel = sourcesRef.current.find((s) => s.playerId === failedId)?.label || '';
+          setStatus(`${srcLabel} · ${nextReader.label}`);
+          attach(nextReader.url);
+          return;
+        }
+
+        const alts = cur?.alternates?.filter(Boolean) || [];
+        if (alts.length) {
+          const [nextUrl, ...rest] = alts;
+          probeCache.current[failedId] = {
+            ...cur,
+            state: 'ok',
+            url: nextUrl,
+            alternates: rest,
+            error: undefined,
+          };
+          setProbes({ ...probeCache.current });
+          setScanHint('Source alternative…');
+          setLoading(true);
+          setError(null);
+          attach(nextUrl);
+          return;
+        }
+
         probeCache.current[failedId] = {
           ...(cur || { state: 'fail' }),
           state: 'fail',
