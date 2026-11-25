@@ -1,8 +1,8 @@
 {
-  "version": "6.0.113",
-  "date": "2026-09-05",
-  "changes": "Support complet multi-lecteurs, correction VO/VOSTFR et montée progressive 1080p.",
-  "downloadUrl": "https://github.com/Apnkk/z-flix-anime/releases/download/v6.0.113/Z-Animes_6.0.113_x64-setup.exe",
-  "sha512": "64fbc01ef0b2e513341d8b133076ad83f1657bdfd39d093da297a262c1acbfd9535df8d6638d33f79536a407c049e82c1424c38a846884a21d3acc15ad8acde7",
+  "version": "6.0.124",
+  "date": "2026-11-25",
+  "changes": "Certificat de signature renouvelé (téléchargement manuel sur GitHub si l'auto-update bloque). Qualité maximale automatique, changement de résolution fluide sans coupure, tampon HLS optimisé et serveurs de lecture multi-sources rétablis.",
+  "downloadUrl": "https://github.com/Apnkk/z-flix-anime/releases/download/v6.0.124/Z-Animes_6.0.124_x64-setup.exe",
+  "sha512": "043e832b4e291cb505df086b1d638199e3077ef3d7e98b32557d0615b8e090e59e3e02c440ffab5eb923f620cb721e29fd6a4a8dc60f134873327d43afa6cc7a",
   "mandatory": false
 }
