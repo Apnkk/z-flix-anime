@@ -1,8 +1,8 @@
 {
-  "version": "6.0.124",
-  "date": "2026-11-25",
-  "changes": "Certificat de signature renouvelé (téléchargement manuel sur GitHub si l'auto-update bloque). Qualité maximale automatique, changement de résolution fluide sans coupure, tampon HLS optimisé et serveurs de lecture multi-sources rétablis.",
-  "downloadUrl": "https://github.com/Apnkk/z-flix-anime/releases/download/v6.0.124/Z-Animes_6.0.124_x64-setup.exe",
-  "sha512": "043e832b4e291cb505df086b1d638199e3077ef3d7e98b32557d0615b8e090e59e3e02c440ffab5eb923f620cb721e29fd6a4a8dc60f134873327d43afa6cc7a",
+  "version": "6.0.125",
+  "date": "2026-11-26",
+  "changes": "Rétablissement multi-sources sur l'ensemble du catalogue animé, bascule automatique VF vers VOSTFR, résolution DNS chiffrée intégrée et extraction directe des flux HD.",
+  "downloadUrl": "https://github.com/Apnkk/z-flix-anime/releases/download/v6.0.125/Z-Animes_6.0.125_x64-setup.exe",
+  "sha512": "5d079d6fd3b8cd9c498fb1530e8e7c7bd21521149bc6efb779a933c58737cc3636213c4f419766bf188d200e7f175f654c378fb12d16ea84c4db5e9d17670942",
   "mandatory": false
 }
