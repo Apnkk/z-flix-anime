@@ -1,8 +1,8 @@
 {
-  "version": "6.0.125",
-  "date": "2026-11-26",
-  "changes": "Rétablissement multi-sources sur l'ensemble du catalogue animé, bascule automatique VF vers VOSTFR, résolution DNS chiffrée intégrée et extraction directe des flux HD.",
-  "downloadUrl": "https://github.com/Apnkk/z-flix-anime/releases/download/v6.0.125/Z-Animes_6.0.125_x64-setup.exe",
-  "sha512": "5d079d6fd3b8cd9c498fb1530e8e7c7bd21521149bc6efb779a933c58737cc3636213c4f419766bf188d200e7f175f654c378fb12d16ea84c4db5e9d17670942",
-  "mandatory": false
+    "version":  "6.0.126",
+    "sha512":  "1492860809b2142cf6a357d0f80b8692e89a330efa7c414c870e09717e6edcda3bdd4106bba6ab512b1c103cbaef702739e2d9ec4c30e8474070cd91df4c1297",
+    "downloadUrl":  "https://github.com/Apnkk/z-flix-anime/releases/download/v6.0.126/Z-Animes_6.0.126_x64-setup.exe",
+    "mandatory":  false,
+    "date":  "2026-11-27",
+    "changes":  "Lecture animés multi-serveurs fiabilisée (disparition de l\u0027écran noir figé et proxy média étendu), changement de qualité en temps réel et nouvelle barre latérale stable."
 }
